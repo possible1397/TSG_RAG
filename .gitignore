@@ -1,0 +1,17 @@
+# Git ignore for TSG_RAG project
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+.idea/
+
+# Data (Sensitive)
+*.xlsx
+*.csv
+!rag_docs.csv
+anonymization_mapping.json
+
+# DB
+chroma_db_local/
