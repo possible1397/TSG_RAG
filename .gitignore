@@ -10,7 +10,7 @@ __pycache__/
 # Data (Sensitive)
 *.xlsx
 *.csv
-!rag_docs.csv
+!rag_docs.sample.csv
 anonymization_mapping.json
 
 # DB

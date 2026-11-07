@@ -1,0 +1,127 @@
+﻿doc_id,content,date,year,client,machine_id,problem_category,key_component,source_file,row_index,has_result,has_hardware_change
+sample_maintenance_log.xlsx::0::M_DC840::2024-03-11,"[Type] MaintenanceLog
+[Date] 2024-03-11
+[Client] Client_A
+[Machine_ID] M_DC840
+
+[Problem_Category] 軟體與驅動
+[Key_Component] VLS
+
+[Symptom] VLS 啟動後無法儲存影像
+
+[Full_Content]
+發生日期: 2024-03-11
+客戶: Client_A
+機台編號: M_DC840
+問題分類: 軟體與驅動
+關鍵元件: VLS
+問題現象: VLS 啟動後無法儲存影像
+維修處理: 現場確認防毒軟體將 USB 儲存裝置封鎖，造成寫檔失敗；移除後 D 槽可正常存圖。
+更換硬體: 
+
+[Source] sample_maintenance_log.xlsx",2024-03-11,2024,Client_A,M_DC840,軟體與驅動,VLS,sample_maintenance_log.xlsx,0,True,False
+sample_maintenance_log.xlsx::1::M_9A79E::2024-04-02,"[Type] MaintenanceLog
+[Date] 2024-04-02
+[Client] Client_B
+[Machine_ID] M_9A79E
+
+[Problem_Category] 相機與取像
+[Key_Component] Camera
+
+[Symptom] 連線不到相機，軟體顯示裝置未就緒
+
+[Full_Content]
+發生日期: 2024-04-02
+客戶: Client_B
+機台編號: M_9A79E
+問題分類: 相機與取像
+關鍵元件: Camera
+問題現象: 連線不到相機，軟體顯示裝置未就緒
+維修處理: 網路線鬆脫導致 GigE 相機掉線；重新固定接頭並加裝固定扣，連線恢復穩定。
+更換硬體: 更換網路線
+
+[Source] sample_maintenance_log.xlsx",2024-04-02,2024,Client_B,M_9A79E,相機與取像,Camera,sample_maintenance_log.xlsx,1,True,True
+sample_maintenance_log.xlsx::2::M_8F944::2024-05-20,"[Type] MaintenanceLog
+[Date] 2024-05-20
+[Client] Client_C
+[Machine_ID] M_8F944
+
+[Problem_Category] 光源與照明
+[Key_Component] Light Source
+
+[Symptom] 檢測影像亮度不足，缺陷判定誤判率上升
+
+[Full_Content]
+發生日期: 2024-05-20
+客戶: Client_C
+機台編號: M_8F944
+問題分類: 光源與照明
+關鍵元件: Light Source
+問題現象: 檢測影像亮度不足，缺陷判定誤判率上升
+維修處理: 量測光源輸出衰減約 30%，判定為燈管老化；更換光源並重新校正曝光參數後恢復。
+更換硬體: 更換環形光源
+
+[Source] sample_maintenance_log.xlsx",2024-05-20,2024,Client_C,M_8F944,光源與照明,Light Source,sample_maintenance_log.xlsx,2,True,True
+sample_maintenance_log.xlsx::3::M_067F6::2024-06-08,"[Type] MaintenanceLog
+[Date] 2024-06-08
+[Client] Client_A
+[Machine_ID] M_067F6
+
+[Problem_Category] 機構與治具
+[Key_Component] Stage
+
+[Symptom] 量測結果重複性變差，同一片量測值飄移
+
+[Full_Content]
+發生日期: 2024-06-08
+客戶: Client_A
+機台編號: M_067F6
+問題分類: 機構與治具
+關鍵元件: Stage
+問題現象: 量測結果重複性變差，同一片量測值飄移
+維修處理: 平台鎖固螺絲鬆動造成微震；重新鎖固並確認水平度後，重複性回到規格內。
+更換硬體: 
+
+[Source] sample_maintenance_log.xlsx",2024-06-08,2024,Client_A,M_067F6,機構與治具,Stage,sample_maintenance_log.xlsx,3,True,False
+sample_maintenance_log.xlsx::4::M_5816D::2024-07-15,"[Type] MaintenanceLog
+[Date] 2024-07-15
+[Client] Client_D
+[Machine_ID] M_5816D
+
+[Problem_Category] 網路與通訊
+[Key_Component] PC
+
+[Symptom] 視覺電腦與 Handler 電腦無法共享資料夾
+
+[Full_Content]
+發生日期: 2024-07-15
+客戶: Client_D
+機台編號: M_5816D
+問題分類: 網路與通訊
+關鍵元件: PC
+問題現象: 視覺電腦與 Handler 電腦無法共享資料夾
+維修處理: 兩台電腦分屬不同工作群組且防火牆阻擋 SMB；統一工作群組並開放連接埠後連線成功。
+更換硬體: 
+
+[Source] sample_maintenance_log.xlsx",2024-07-15,2024,Client_D,M_5816D,網路與通訊,PC,sample_maintenance_log.xlsx,4,True,False
+sample_maintenance_log.xlsx::5::M_F4361::2024-08-29,"[Type] MaintenanceLog
+[Date] 2024-08-29
+[Client] Client_B
+[Machine_ID] M_F4361
+
+[Problem_Category] 軟體與驅動
+[Key_Component] VLS
+
+[Symptom] 軟體升版後配方無法載入
+
+[Full_Content]
+發生日期: 2024-08-29
+客戶: Client_B
+機台編號: M_F4361
+問題分類: 軟體與驅動
+關鍵元件: VLS
+問題現象: 軟體升版後配方無法載入
+維修處理: 舊版配方欄位與新版結構不相容；以轉檔工具轉換後載入正常，並補上版本檢查。
+更換硬體: 
+
+[Source] sample_maintenance_log.xlsx",2024-08-29,2024,Client_B,M_F4361,軟體與驅動,VLS,sample_maintenance_log.xlsx,5,True,False

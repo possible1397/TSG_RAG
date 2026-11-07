@@ -18,11 +18,40 @@ _BAD_DESC_PATTERNS = [
 ]
 
 
+# =========================
+# 通用 PII 遮蔽
+# =========================
+# Anonymizer 只處理 Client / Machine_ID「欄位」，再把已知值拿去全文取代。
+# 但工程師常把客戶名、聯絡人、電話直接打在 Symptom / Description 等自由欄位裡，
+# 那些值從未進過對照表，因此不會被取代。以下規則不依賴對照表，獨立再掃一次。
+_EMAIL_RE = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
+_MOBILE_RE = re.compile(r"(?<![\d-])09\d{2}[-\s]?\d{3}[-\s]?\d{3}(?![\d-])")
+_TEL_RE = re.compile(r"\(0\d{1,2}\)\s?\d{3,4}[-\s]?\d{4}")
+
+# 自由欄位中仍需遮蔽的字詞（客戶公司名、人名…）。
+# 放在 anonymization_mapping.json 的 "extra_terms" 內，該檔已被 .gitignore 排除。
+EXTRA_TERMS_KEY = "extra_terms"
+
+
+def scrub_pii(text: str, extra_terms=()) -> str:
+    """移除自由文字中的聯絡資訊與指定字詞。"""
+    if not text:
+        return text
+    text = _EMAIL_RE.sub("[EMAIL]", text)
+    text = _MOBILE_RE.sub("[PHONE]", text)
+    text = _TEL_RE.sub("[PHONE]", text)
+    # 長字串先替換，避免短字串先吃掉前綴
+    for term in sorted((t for t in extra_terms if t), key=len, reverse=True):
+        text = text.replace(term, "[REDACTED]")
+    return text
+
+
 class Anonymizer:
     def __init__(self, mapping_file=MAPPING_FILE):
         self.mapping_file = mapping_file
         self.client_map = {}
         self.machine_map = {}
+        self.extra_terms = []
         self._load_mapping()
 
     def _load_mapping(self):
@@ -32,6 +61,7 @@ class Anonymizer:
                     data = json.load(f)
                     self.client_map = data.get("clients", {})
                     self.machine_map = data.get("machines", {})
+                    self.extra_terms = list(data.get(EXTRA_TERMS_KEY, []))
             except Exception as e:
                 print(f"警告：讀取對照表失敗 ({e})，將啟動全新對照。")
 
@@ -39,7 +69,8 @@ class Anonymizer:
         with open(self.mapping_file, "w", encoding="utf-8") as f:
             json.dump({
                 "clients": self.client_map,
-                "machines": self.machine_map
+                "machines": self.machine_map,
+                EXTRA_TERMS_KEY: self.extra_terms,
             }, f, indent=4, ensure_ascii=False)
 
     def get_client_alias(self, name: str) -> str:
@@ -95,11 +126,12 @@ def build_content(row: pd.Series, anonymizer: Anonymizer) -> str:
     cat = safe_str(row.get("Problem_Category", ""))
     comp = safe_str(row.get("Key_Component", ""))
 
-    symptom = safe_str(row.get("Symptom", ""))
-    desc = safe_str(row.get("Description", ""))
-    result = safe_str(row.get("Result", ""))
-    hardware = safe_str(row.get("Hardware", ""))
-    root = safe_str(row.get("Root_Cause", ""))
+    _terms = getattr(anonymizer, "extra_terms", ())
+    symptom = scrub_pii(safe_str(row.get("Symptom", "")), _terms)
+    desc = scrub_pii(safe_str(row.get("Description", "")), _terms)
+    result = scrub_pii(safe_str(row.get("Result", "")), _terms)
+    hardware = scrub_pii(safe_str(row.get("Hardware", "")), _terms)
+    root = scrub_pii(safe_str(row.get("Root_Cause", "")), _terms)
 
     source = safe_str(row.get("Source_File", ""))
     full_content = safe_str(row.get("Full_Content", ""))
@@ -110,6 +142,7 @@ def build_content(row: pd.Series, anonymizer: Anonymizer) -> str:
             full_content = full_content.replace(raw_name, alias)
     for raw_id, alias in anonymizer.machine_map.items():
         full_content = full_content.replace(raw_id, alias)
+    full_content = scrub_pii(full_content, _terms)
 
     parts = [
         "[Type] MaintenanceLog",
@@ -138,6 +171,20 @@ def build_content(row: pd.Series, anonymizer: Anonymizer) -> str:
 
     content = "\n".join([p for p in parts if p is not None])
     return content.strip()
+
+
+def audit_pii(texts, extra_terms=()):
+    """輸出前的最後一道檢查，回傳 [(類別, 範例)]。"""
+    joined = chr(10).join(texts)
+    found = []
+    for kind, pat in (("Email", _EMAIL_RE), ("電話", _MOBILE_RE), ("電話", _TEL_RE)):
+        m = pat.search(joined)
+        if m:
+            found.append((kind, m.group(0)))
+    for term in extra_terms:
+        if term and term in joined:
+            found.append(("指定字詞", term))
+    return found
 
 
 def main():
@@ -197,6 +244,18 @@ def main():
     ]
 
     rag_df = df[out_cols].copy()
+
+    # 輸出前稽核：確認沒有聯絡資訊或指定字詞漏網
+    leaks = audit_pii(rag_df["content"].astype(str).tolist(),
+                      getattr(anonymizer, "extra_terms", ()))
+    if leaks:
+        for kind, sample in leaks:
+            print(f"[!] 偵測到未遮蔽的{kind}：{sample}")
+        raise SystemExit(
+            "輸出中斷：請把漏網的字詞加進 "
+            f"{MAPPING_FILE} 的 \"{EXTRA_TERMS_KEY}\" 後重跑。"
+        )
+
     rag_df.to_csv(OUTPUT_CSV, index=False, encoding="utf-8-sig")
     
     anonymizer._save_mapping()
